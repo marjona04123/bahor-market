@@ -45,7 +45,11 @@ const productsData = [
 ];
 
 let cart = [];
-let selectedCategory = "Barchasi";
+let selectedCategory = "all";
+let searchText = "";
+
+const money = amount =>
+  amount.toLocaleString("uz-UZ") + " so‘m";
 
 function renderCategories() {
   const container = document.getElementById("categories");
@@ -54,18 +58,20 @@ function renderCategories() {
   container.innerHTML = "";
 
   const categories = [
-    "Barchasi",
-    ...new Set(productsData.map(product => product.category))
+    { name: "Barchasi", value: "all" },
+    ...[...new Set(productsData.map(p => p.category))]
+      .map(name => ({ name, value: name }))
   ];
 
   categories.forEach(category => {
     const button = document.createElement("button");
-    button.textContent = category;
     button.className =
-      category === selectedCategory ? "category-btn active" : "category-btn";
+      "category" +
+      (selectedCategory === category.value ? " active" : "");
+    button.textContent = category.name;
 
     button.onclick = () => {
-      selectedCategory = category;
+      selectedCategory = category.value;
       renderCategories();
       renderProducts();
     };
@@ -80,20 +86,30 @@ function renderProducts() {
 
   container.innerHTML = "";
 
-  const filteredProducts =
-    selectedCategory === "Barchasi"
-      ? productsData
-      : productsData.filter(
-          product => product.category === selectedCategory
-        );
+  const filtered = productsData.filter(product => {
+    const categoryMatch =
+      selectedCategory === "all" ||
+      product.category === selectedCategory;
 
-  const countElement = document.getElementById("product-count");
-  if (countElement) {
-    countElement.textContent = `${filteredProducts.length} ta mahsulot`;
+    const searchMatch =
+      product.name.toLowerCase().includes(searchText.toLowerCase());
+
+    return categoryMatch && searchMatch;
+  });
+
+  const count = document.getElementById("product-count");
+  if (count) {
+    count.textContent = `${filtered.length} ta mahsulot`;
   }
 
-  filteredProducts.forEach(product => {
-    const card = document.createElement("div");
+  if (filtered.length === 0) {
+    container.innerHTML =
+      '<p class="message">Mahsulot topilmadi.</p>';
+    return;
+  }
+
+  filtered.forEach(product => {
+    const card = document.createElement("article");
     card.className = "product-card";
 
     const imageBox = document.createElement("div");
@@ -113,8 +129,7 @@ function renderProducts() {
     name.textContent = product.name;
 
     const price = document.createElement("p");
-    price.textContent =
-      product.price.toLocaleString("uz-UZ") + " so‘m";
+    price.textContent = money(product.price);
 
     const button = document.createElement("button");
     button.textContent = "Savatchaga qo‘shish";
@@ -126,13 +141,13 @@ function renderProducts() {
 }
 
 function addToCart(productId) {
-  const product = productsData.find(item => item.id === productId);
+  const product = productsData.find(p => p.id === productId);
   if (!product) return;
 
   const existing = cart.find(item => item.id === productId);
 
   if (existing) {
-    existing.quantity++;
+    existing.quantity += 1;
   } else {
     cart.push({ ...product, quantity: 1 });
   }
@@ -141,28 +156,58 @@ function addToCart(productId) {
 }
 
 function renderCart() {
-  const container = document.getElementById("cart");
-  const totalElement = document.getElementById("total");
+  const itemsContainer = document.getElementById("cart-items");
+  const totalElement = document.getElementById("cart-total");
+  const modalTotal = document.getElementById("modal-total");
+  const countElement = document.getElementById("cart-count");
 
-  if (container) {
-    container.innerHTML = "";
+  let total = 0;
+  let quantityTotal = 0;
+
+  cart.forEach(item => {
+    total += item.price * item.quantity;
+    quantityTotal += item.quantity;
+  });
+
+  if (totalElement) totalElement.textContent = money(total);
+  if (modalTotal) modalTotal.textContent = money(total);
+  if (countElement) countElement.textContent = quantityTotal;
+
+  if (itemsContainer) {
+    itemsContainer.innerHTML = "";
 
     cart.forEach(item => {
-      const row = document.createElement("p");
-      row.textContent =
-        `${item.name} × ${item.quantity} — ${(item.price * item.quantity).toLocaleString("uz-UZ")} so‘m`;
-      container.appendChild(row);
+      const row = document.createElement("div");
+      row.className = "cart-item";
+
+      const label = document.createElement("span");
+      label.textContent =
+        `${item.name} × ${item.quantity} — ${money(item.price * item.quantity)}`;
+
+      const decrease = document.createElement("button");
+      decrease.textContent = "−";
+      decrease.onclick = () => {
+        item.quantity -= 1;
+        if (item.quantity <= 0) {
+          cart = cart.filter(p => p.id !== item.id);
+        }
+        renderCart();
+      };
+
+      const increase = document.createElement("button");
+      increase.textContent = "+";
+      increase.onclick = () => {
+        item.quantity += 1;
+        renderCart();
+      };
+
+      row.append(label, decrease, increase);
+      itemsContainer.appendChild(row);
     });
-  }
 
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-
-  if (totalElement) {
-    totalElement.textContent =
-      total.toLocaleString("uz-UZ") + " so‘m";
+    if (cart.length === 0) {
+      itemsContainer.textContent = "Savatcha hozircha bo‘sh.";
+    }
   }
 }
 
@@ -170,4 +215,36 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCategories();
   renderProducts();
   renderCart();
+
+  const search = document.getElementById("search");
+  if (search) {
+    search.addEventListener("input", event => {
+      searchText = event.target.value.trim();
+      renderProducts();
+    });
+  }
+
+  const openCart = document.getElementById("open-cart");
+  const closeCart = document.getElementById("close-cart");
+  const modal = document.getElementById("cart-modal");
+
+  if (openCart && modal) {
+    openCart.onclick = () => modal.classList.remove("hidden");
+  }
+
+  if (closeCart && modal) {
+    closeCart.onclick = () => modal.classList.add("hidden");
+  }
+
+  const checkout = document.getElementById("checkout");
+  if (checkout) {
+    checkout.onclick = () => {
+      if (cart.length === 0) {
+        alert("Avval savatchaga mahsulot qo‘shing.");
+        return;
+      }
+
+      alert("Savatcha tayyor. Buyurtmani Telegram botga yuborish funksiyasini keyingi bosqichda ulaymiz.");
+    };
+  }
 });
