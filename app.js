@@ -34,11 +34,11 @@ const productsData = [
     category: "Meva va sabzavot",
     image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80"
   },
-  {
+   {
     id: 6,
     name: "Elseve shampun",
     price: 25000,
-        category: "Uy-ro‘zg‘or",
+    category: "Uy-ro‘zg‘or",
     image: "https://pharmaclick.uz/upload/Sh/imageCache/263/966/9665753763287993.webp"
   }
 ];
