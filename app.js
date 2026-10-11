@@ -1,3 +1,4 @@
+
 const productsData = [
   {
     id: 1,
@@ -34,7 +35,7 @@ const productsData = [
     category: "Meva va sabzavot",
     image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80"
   },
-   {
+  {
     id: 6,
     name: "Elseve shampun",
     price: 25000,
@@ -44,6 +45,34 @@ const productsData = [
 ];
 
 let cart = [];
+let selectedCategory = "Barchasi";
+
+function renderCategories() {
+  const container = document.getElementById("categories");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const categories = [
+    "Barchasi",
+    ...new Set(productsData.map(product => product.category))
+  ];
+
+  categories.forEach(category => {
+    const button = document.createElement("button");
+    button.textContent = category;
+    button.className =
+      category === selectedCategory ? "category-btn active" : "category-btn";
+
+    button.onclick = () => {
+      selectedCategory = category;
+      renderCategories();
+      renderProducts();
+    };
+
+    container.appendChild(button);
+  });
+}
 
 function renderProducts() {
   const container = document.getElementById("products");
@@ -51,7 +80,19 @@ function renderProducts() {
 
   container.innerHTML = "";
 
-  productsData.forEach(product => {
+  const filteredProducts =
+    selectedCategory === "Barchasi"
+      ? productsData
+      : productsData.filter(
+          product => product.category === selectedCategory
+        );
+
+  const countElement = document.getElementById("product-count");
+  if (countElement) {
+    countElement.textContent = `${filteredProducts.length} ta mahsulot`;
+  }
+
+  filteredProducts.forEach(product => {
     const card = document.createElement("div");
     card.className = "product-card";
 
@@ -62,6 +103,7 @@ function renderProducts() {
     img.src = product.image;
     img.alt = product.name;
     img.onerror = () => {
+      img.style.display = "none";
       imageBox.textContent = "Rasm yuklanmadi";
     };
 
@@ -71,7 +113,8 @@ function renderProducts() {
     name.textContent = product.name;
 
     const price = document.createElement("p");
-    price.textContent = product.price.toLocaleString("uz-UZ") + " so‘m";
+    price.textContent =
+      product.price.toLocaleString("uz-UZ") + " so‘m";
 
     const button = document.createElement("button");
     button.textContent = "Savatchaga qo‘shish";
@@ -118,11 +161,13 @@ function renderCart() {
   );
 
   if (totalElement) {
-    totalElement.textContent = total.toLocaleString("uz-UZ") + " so‘m";
+    totalElement.textContent =
+      total.toLocaleString("uz-UZ") + " so‘m";
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  renderCategories();
   renderProducts();
   renderCart();
 });
