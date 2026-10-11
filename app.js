@@ -4,21 +4,21 @@ const productsData = [
     name: "Non",
     price: 5000,
     category: "Oziq-ovqat",
-    image: "https://www.google.com/imgres?q=lepyoshka%20non&imgurl=https%3A%2F%2Fdostavo4ka.uz%2Fupload-file%2F2021%2F07%2F05%2F6239%2F750x750-9b2d792c-266d-41c6-af4c-e50ddcd703ed.jpg&imgrefurl=https%3A%2F%2Fdostavo4ka.uz%2Fru%2Fproduct%2F6387%2Fsamarkandskiye-lepeshki-osiye.html&docid=SAxapRYApB2htM&tbnid=rzEBGYPiJPQIPM&vet=12ahUKEwiopbLU_LGXAxXxSPEDHVtSGg4QnPAOegUI_wQQAA..i&w=750&h=750&hcb=2&ved=2ahUKEwiopbLU_LGXAxXxSPEDHVtSGg4QnPAOegUI_wQQAA"
+    image: "https://dostavo4ka.uz/upload-file/2021/07/05/6239/750x750-9b2d792c-266d-41c6-af4c-e50ddcd703ed.jpg"
   },
   {
     id: 2,
     name: "Lactel sut",
     price: 12000,
     category: "Oziq-ovqat",
-    image: "https://www.google.com/imgres?q=laktel%20sut&imgurl=https%3A%2F%2Folcha.uz%2Fimage%2F675x900%2Fproducts%2Fcdn_1%2Fsupplier%2Fstores%2F1%2F2024-04-18%2FEYeJ3VmDvdihuSUP71500BmQzkwrSK23vAwKS6dpF8E5BW2qMZPNJomAkJOj.jpg&imgrefurl=https%3A%2F%2Folcha.uz%2Foz%2Fproduct%2Fview%2Fmoloko-lactel-sutim-legkoe-2-1l%3Fsrsltid%3DAU7gw4VPwbGKG8Stcf3jttiZDWVH4u1GEcHG8NmAAx-HrU-ZpssXdmEv&docid=b72Y0jn4aT-mqM&tbnid=EWhn_qcqVnCGzM&vet=12ahUKEwjzxPn6_LGXAxVJKvsDHXOWO4EQnPAOegQIJRAA..i&w=625&h=625&hcb=2&ved=2ahUKEwjzxPn6_LGXAxVJKvsDHXOWO4EQnPAOegQIJRAA"
+    image: "https://olcha.uz/image/675x900/products/cdn_1/supplier/stores/1/2024-04-18/EYeJ3VmDvdihuSUP71500BmQzkwrSK23vAwKS6dpF8E5BW2qMZPNJomAkJOj.jpg"
   },
   {
     id: 3,
     name: "Shakar",
     price: 15000,
     category: "Oziq-ovqat",
-    image: "https://www.google.com/imgres?q=shakar&imgurl=https%3A%2F%2Fcdn.bigmart.uz%2Ffile%2Fhub%2Ffile%2F2025%2F12%2F19%2F373pYH2dMc8Fuk4cftEXBWrVEj8.jpg&imgrefurl=https%3A%2F%2Fbigmart.uz%2Fuz%2Fproducts%2Fshakar-365-kun-900-gr-pg-1064459&docid=XZWYPrm7otDfwM&tbnid=jP6JhDFzxY_whM&vet=12ahUKEwjIr9ST_bGXAxViVfEDHfN3JLQQnPAOegQIaBAA..i&w=1000&h=1333&hcb=2&ved=2ahUKEwjIr9ST_bGXAxViVfEDHfN3JLQQnPAOegQIaBAA"
+    image: "https://cdn.bigmart.uz/file/hub/file/2025/12/19/373pYH2dMc8Fuk4cftEXBWrVEj8.jpg"
   },
   {
     id: 4,
@@ -39,7 +39,9 @@ const productsData = [
     name: "Elseve shampun",
     price: 25000,
     category: "Uy-ro‘zg‘or",
-    image: "https://www.google.com/imgres?q=shampun&imgurl=https%3A%2F%2Fpharmaclick.uz%2Fupload%2FSh%2FimageCache%2F263%2F966%2F9665753763287993.webp&imgrefurl=https%3A%2F%2Fpharmaclick.uz%2Fuz%2Fcatalog%2Fshampun_dlya_volos%2Fshampun_dlya_povrezhdennykh_volos_l_or_al_elseve_polnoe_vosstanovlenie_5_400ml%2F%3Fsrsltid%3DAU7gw4VJYt0hYix-c_3QnVD5TsEBQUA76DZ-BNAR-zB3_85eYvPOvnzF&docid=QeYv8j874F2wcM&tbnid=-ay2RB2I_ciuqM&vet=12ahUKEwiUvJ-z_bGXAxVJVfEDHQoCLN4QnPAOegQIOxAA..i&w=1000&h=1000&hcb=2&ved=2ahUKEwiUvJ-z_bGXAxVJVfEDHQoCLN4QnPAOegQIOxAA"
+    image: "
+image: "https://pharmaclick.uz/upload/Sh/imageCache/263/966/9665753763287993.webp"
+"
   }
 ];
 
