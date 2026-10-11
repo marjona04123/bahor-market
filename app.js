@@ -38,10 +38,8 @@ const productsData = [
     id: 6,
     name: "Elseve shampun",
     price: 25000,
-    category: "Uy-ro‘zg‘or",
-    image: "
-image: "https://pharmaclick.uz/upload/Sh/imageCache/263/966/9665753763287993.webp"
-"
+        category: "Uy-ro‘zg‘or",
+    image: "https://pharmaclick.uz/upload/Sh/imageCache/263/966/9665753763287993.webp"
   }
 ];
 
