@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#08a83e">
+    <title>Bahor Market</title>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="brand">
+            <div class="logo">B</div>
+            <div>
+                <h1>Bahor Market</h1>
+                <p>Yaxshi mahsulotlar, qulay xarid!</p>
+            </div>
+        </div>
+
+        <label class="search">
+            <span>🔎</span>
+            <input id="search" type="search"
+                   placeholder="Mahsulot qidirish...">
+        </label>
+    </header>
+
+    <main>
+        <h2>Kategoriyalar</h2>
+        <nav id="categories" class="categories">
+            <button class="category active" data-category="all">
+                Barchasi
+            </button>
+        </nav>
+
+        <div class="section-heading">
+            <h2>Mahsulotlar</h2>
+            <span id="product-count">Yuklanmoqda...</span>
+        </div>
+
+        <section id="products" class="products">
+            <p class="message">Do‘kon yuklanmoqda...</p>
+        </section>
+    </main>
+
+    <footer class="bottom-bar">
+        <div>
+            <span>Savatcha</span>
+            <strong id="cart-total">0 so‘m</strong>
+        </div>
+        <button id="open-cart" class="cart-button">
+            🛒 Savatcha (<span id="cart-count">0</span>)
+        </button>
+    </footer>
+
+    <div id="cart-modal" class="modal hidden">
+        <div class="modal-content">
+            <button id="close-cart" class="close-button">✕</button>
+            <h2>Savatchangiz</h2>
+            <div id="cart-items"></div>
+            <div class="cart-summary">
+                <strong>Jami:</strong>
+                <strong id="modal-total">0 so‘m</strong>
+            </div>
+            <button id="checkout" class="checkout-button">
+                Buyurtma berish
+            </button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
