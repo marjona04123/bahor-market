@@ -6,16 +6,58 @@ if (tg) {
     tg.expand();
 }
 
-// Hozircha sinov mahsulotlari.
-// Keyingi bosqichda SQLite bazaga ulaymiz.
+// ================================
+// MAHSULOTLAR
+// ================================
+
 const productsData = [
-    { id: 1, name: "Non", price: 5000, category: "Oziq-ovqat", emoji: "🍞" },
-    { id: 2, name: "Sut", price: 12000, category: "Oziq-ovqat", emoji: "🥛" },
-    { id: 3, name: "Shakar", price: 15000, category: "Oziq-ovqat", emoji: "🍚" },
-    { id: 4, name: "Olma", price: 10000, category: "Meva va sabzavot", emoji: "🍎" },
-    { id: 5, name: "Banan", price: 18000, category: "Meva va sabzavot", emoji: "🍌" },
-    { id: 6, name: "Shampun", price: 25000, category: "Uy-ro‘zg‘or", emoji: "🧴" }
+    {
+        id: 1,
+        name: "Non",
+        price: 5000,
+        category: "Oziq-ovqat",
+        image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80"
+    },
+    {
+        id: 2,
+        name: "Sut",
+        price: 12000,
+        category: "Oziq-ovqat",
+        image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=600&q=80"
+    },
+    {
+        id: 3,
+        name: "Shakar",
+        price: 15000,
+        category: "Oziq-ovqat",
+        image: "https://images.unsplash.com/photo-1581268497617-1f7f2a2f6b6d?auto=format&fit=crop&w=600&q=80"
+    },
+    {
+        id: 4,
+        name: "Olma",
+        price: 10000,
+        category: "Meva va sabzavot",
+        image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80"
+    },
+    {
+        id: 5,
+        name: "Banan",
+        price: 18000,
+        category: "Meva va sabzavot",
+        image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80"
+    },
+    {
+        id: 6,
+        name: "Shampun",
+        price: 25000,
+        category: "Uy-ro‘zg‘or",
+        image: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=600&q=80"
+    }
 ];
+
+// ================================
+// O'ZGARUVCHILAR
+// ================================
 
 let selectedCategory = "Barchasi";
 let cart = [];
@@ -30,12 +72,31 @@ const cartModal = document.getElementById("cart-modal");
 const cartItemsElement = document.getElementById("cart-items");
 const modalTotalElement = document.getElementById("modal-total");
 
+// ================================
+// YORDAMCHI FUNKSIYALAR
+// ================================
+
 function formatPrice(price) {
     return price.toLocaleString("uz-UZ") + " so‘m";
 }
 
-// Kategoriyalarni chiqarish
+// HTML element mavjudligini tekshirish
+function elementExists(element, name) {
+    if (!element) {
+        console.error(name + " elementi HTML ichida topilmadi.");
+        return false;
+    }
+
+    return true;
+}
+
+// ================================
+// KATEGORIYALAR
+// ================================
+
 function renderCategories() {
+    if (!elementExists(categoriesElement, "categories")) return;
+
     const categories = [
         "Barchasi",
         ...new Set(productsData.map(product => product.category))
@@ -45,6 +106,7 @@ function renderCategories() {
 
     categories.forEach(category => {
         const button = document.createElement("button");
+
         button.className = "category";
         button.textContent = category;
 
@@ -62,9 +124,16 @@ function renderCategories() {
     });
 }
 
-// Mahsulotlarni chiqarish
+// ================================
+// MAHSULOTLARNI CHIQARISH
+// ================================
+
 function renderProducts() {
-    const searchText = searchElement.value.trim().toLowerCase();
+    if (!elementExists(productsElement, "products")) return;
+
+    const searchText = searchElement
+        ? searchElement.value.trim().toLowerCase()
+        : "";
 
     const filteredProducts = productsData.filter(product => {
         const matchesCategory =
@@ -77,8 +146,10 @@ function renderProducts() {
         return matchesCategory && matchesSearch;
     });
 
-    productCountElement.textContent =
-        filteredProducts.length + " ta mahsulot";
+    if (productCountElement) {
+        productCountElement.textContent =
+            filteredProducts.length + " ta mahsulot";
+    }
 
     productsElement.innerHTML = "";
 
@@ -92,17 +163,33 @@ function renderProducts() {
         const card = document.createElement("article");
         card.className = "product-card";
 
-        const emoji = document.createElement("div");
-        emoji.className = "product-image";
-        emoji.textContent = product.emoji;
+        // Mahsulot rasmi
+        const imageBox = document.createElement("div");
+        imageBox.className = "product-image";
 
+        const image = document.createElement("img");
+        image.src = product.image;
+        image.alt = product.name;
+        image.loading = "lazy";
+
+        image.onerror = function () {
+            imageBox.innerHTML = "";
+            imageBox.classList.add("image-error");
+            imageBox.textContent = "Rasm yuklanmadi";
+        };
+
+        imageBox.appendChild(image);
+
+        // Mahsulot nomi
         const name = document.createElement("h3");
         name.textContent = product.name;
 
+        // Mahsulot narxi
         const price = document.createElement("p");
         price.className = "product-price";
         price.textContent = formatPrice(product.price);
 
+        // Savatchaga qo'shish tugmasi
         const button = document.createElement("button");
         button.className = "add-button";
         button.textContent = "＋ Savatchaga";
@@ -111,22 +198,33 @@ function renderProducts() {
             addToCart(product.id);
         });
 
-        card.append(emoji, name, price, button);
+        card.append(imageBox, name, price, button);
         productsElement.appendChild(card);
     });
 }
 
-// Savatchaga mahsulot qo‘shish
+// ================================
+// SAVATCHAGA QO'SHISH
+// ================================
+
 function addToCart(productId) {
-    const product = productsData.find(item => item.id === productId);
+    const product = productsData.find(
+        item => item.id === productId
+    );
+
     if (!product) return;
 
-    const cartItem = cart.find(item => item.id === productId);
+    const cartItem = cart.find(
+        item => item.id === productId
+    );
 
     if (cartItem) {
         cartItem.quantity += 1;
     } else {
-        cart.push({ ...product, quantity: 1 });
+        cart.push({
+            ...product,
+            quantity: 1
+        });
     }
 
     renderCart();
@@ -136,24 +234,40 @@ function addToCart(productId) {
     }
 }
 
-// Savatchani hisoblash va ko‘rsatish
+// ================================
+// SAVATCHANI KO'RSATISH
+// ================================
+
 function renderCart() {
     const totalQuantity = cart.reduce(
-        (sum, item) => sum + item.quantity, 0
+        (sum, item) => sum + item.quantity,
+        0
     );
 
     const totalPrice = cart.reduce(
-        (sum, item) => sum + item.price * item.quantity, 0
+        (sum, item) => sum + item.price * item.quantity,
+        0
     );
 
-    cartCountElement.textContent = totalQuantity;
-    cartTotalElement.textContent = formatPrice(totalPrice);
-    modalTotalElement.textContent = formatPrice(totalPrice);
+    if (cartCountElement) {
+        cartCountElement.textContent = totalQuantity;
+    }
+
+    if (cartTotalElement) {
+        cartTotalElement.textContent = formatPrice(totalPrice);
+    }
+
+    if (modalTotalElement) {
+        modalTotalElement.textContent = formatPrice(totalPrice);
+    }
+
+    if (!cartItemsElement) return;
 
     cartItemsElement.innerHTML = "";
 
     if (cart.length === 0) {
-        cartItemsElement.textContent = "Savatchangiz hozircha bo‘sh.";
+        cartItemsElement.textContent =
+            "Savatchangiz hozircha bo‘sh.";
         return;
     }
 
@@ -162,21 +276,25 @@ function renderCart() {
         row.className = "cart-item";
 
         const info = document.createElement("span");
+
         info.textContent =
-            `${item.emoji} ${item.name} × ${item.quantity} — ` +
+            `${item.name} × ${item.quantity} — ` +
             formatPrice(item.price * item.quantity);
 
         const removeButton = document.createElement("button");
         removeButton.textContent = "−";
         removeButton.setAttribute(
-            "aria-label", item.name + " miqdorini kamaytirish"
+            "aria-label",
+            item.name + " miqdorini kamaytirish"
         );
 
         removeButton.addEventListener("click", () => {
             item.quantity -= 1;
 
             if (item.quantity <= 0) {
-                cart = cart.filter(product => product.id !== item.id);
+                cart = cart.filter(
+                    product => product.id !== item.id
+                );
             }
 
             renderCart();
@@ -187,36 +305,79 @@ function renderCart() {
     });
 }
 
-// Qidiruv
-searchElement.addEventListener("input", renderProducts);
+// ================================
+// QIDIRUV
+// ================================
 
-// Savatchani ochish va yopish
-document.getElementById("open-cart").addEventListener("click", () => {
-    cartModal.classList.remove("hidden");
-});
+if (searchElement) {
+    searchElement.addEventListener("input", renderProducts);
+}
 
-document.getElementById("close-cart").addEventListener("click", () => {
-    cartModal.classList.add("hidden");
-});
+// ================================
+// SAVATCHANI OCHISH
+// ================================
 
-// Hozircha buyurtma serverga yuborilmaydi
-document.getElementById("checkout").addEventListener("click", () => {
-    if (cart.length === 0) {
-        alert("Avval savatchaga mahsulot qo‘shing.");
-        return;
-    }
+const openCartButton = document.getElementById("open-cart");
 
-    const message =
-        "Savatcha tayyor, lekin buyurtma berish uchun bot bilan ulash kerak.";
+if (openCartButton && cartModal) {
+    openCartButton.addEventListener("click", () => {
+        cartModal.classList.remove("hidden");
+    });
+}
 
-    if (tg) {
-        tg.showAlert(message);
-    } else {
-        alert(message);
-    }
-});
+// ================================
+// SAVATCHANI YOPISH
+// ================================
 
-// Do‘konni ishga tushirish
+const closeCartButton = document.getElementById("close-cart");
+
+if (closeCartButton && cartModal) {
+    closeCartButton.addEventListener("click", () => {
+        cartModal.classList.add("hidden");
+    });
+}
+
+// ================================
+// BUYURTMA BERISH
+// ================================
+
+// Hozircha bu sinov rejimi.
+// Buyurtma hali botga yoki serverga yuborilmaydi.
+
+const checkoutButton = document.getElementById("checkout");
+
+if (checkoutButton) {
+    checkoutButton.addEventListener("click", () => {
+        if (cart.length === 0) {
+            const message =
+                "Avval savatchaga mahsulot qo‘shing.";
+
+            if (tg) {
+                tg.showAlert(message);
+            } else {
+                alert(message);
+            }
+
+            return;
+        }
+
+        const message =
+            "Savatchangiz tayyor! " +
+            "Buyurtmani botga yuborish funksiyasi " +
+            "keyingi bosqichda ulanadi.";
+
+        if (tg) {
+            tg.showAlert(message);
+        } else {
+            alert(message);
+        }
+    });
+}
+
+// ================================
+// DO'KONNI ISHGA TUSHIRISH
+// ================================
+
 renderCategories();
 renderProducts();
 renderCart();
