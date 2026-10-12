@@ -1,4 +1,6 @@
 
+const tg = window.Telegram?.WebApp;
+
 const productsData = [
   {
     id: 1,
@@ -46,10 +48,10 @@ const productsData = [
 
 let cart = [];
 let selectedCategory = "all";
-let searchText = "";
 
-const money = amount =>
-  amount.toLocaleString("uz-UZ") + " so‘m";
+function money(amount) {
+  return amount.toLocaleString("uz-UZ") + " so‘m";
+}
 
 function renderCategories() {
   const container = document.getElementById("categories");
@@ -58,20 +60,19 @@ function renderCategories() {
   container.innerHTML = "";
 
   const categories = [
-    { name: "Barchasi", value: "all" },
-    ...[...new Set(productsData.map(p => p.category))]
-      .map(name => ({ name, value: name }))
+    "all",
+    ...new Set(productsData.map(p => p.category))
   ];
 
   categories.forEach(category => {
     const button = document.createElement("button");
     button.className =
-      "category" +
-      (selectedCategory === category.value ? " active" : "");
-    button.textContent = category.name;
+      "category" + (selectedCategory === category ? " active" : "");
+
+    button.textContent = category === "all" ? "Barchasi" : category;
 
     button.onclick = () => {
-      selectedCategory = category.value;
+      selectedCategory = category;
       renderCategories();
       renderProducts();
     };
@@ -84,32 +85,33 @@ function renderProducts() {
   const container = document.getElementById("products");
   if (!container) return;
 
-  container.innerHTML = "";
+  const search = (
+    document.getElementById("search")?.value || ""
+  ).trim().toLowerCase();
 
   const filtered = productsData.filter(product => {
-    const categoryMatch =
+    const matchesCategory =
       selectedCategory === "all" ||
       product.category === selectedCategory;
 
-    const searchMatch =
-      product.name.toLowerCase().includes(searchText.toLowerCase());
+    const matchesSearch =
+      product.name.toLowerCase().includes(search);
 
-    return categoryMatch && searchMatch;
+    return matchesCategory && matchesSearch;
   });
 
-  const count = document.getElementById("product-count");
-  if (count) {
-    count.textContent = `${filtered.length} ta mahsulot`;
-  }
+  container.innerHTML = "";
 
-  if (filtered.length === 0) {
-    container.innerHTML =
-      '<p class="message">Mahsulot topilmadi.</p>';
+  const count = document.getElementById("product-count");
+  if (count) count.textContent = `${filtered.length} ta mahsulot`;
+
+  if (!filtered.length) {
+    container.textContent = "Mahsulot topilmadi.";
     return;
   }
 
   filtered.forEach(product => {
-    const card = document.createElement("article");
+    const card = document.createElement("div");
     card.className = "product-card";
 
     const imageBox = document.createElement("div");
@@ -147,7 +149,7 @@ function addToCart(productId) {
   const existing = cart.find(item => item.id === productId);
 
   if (existing) {
-    existing.quantity += 1;
+    existing.quantity++;
   } else {
     cart.push({ ...product, quantity: 1 });
   }
@@ -156,95 +158,109 @@ function addToCart(productId) {
 }
 
 function renderCart() {
-  const itemsContainer = document.getElementById("cart-items");
-  const totalElement = document.getElementById("cart-total");
-  const modalTotal = document.getElementById("modal-total");
+  const container =
+    document.getElementById("cart-items") ||
+    document.getElementById("cart");
+
+  const totalElement =
+    document.getElementById("cart-total") ||
+    document.getElementById("total");
+
   const countElement = document.getElementById("cart-count");
+  const modalTotal = document.getElementById("modal-total");
 
-  let total = 0;
-  let quantityTotal = 0;
+  if (container) {
+    container.innerHTML = "";
 
-  cart.forEach(item => {
-    total += item.price * item.quantity;
-    quantityTotal += item.quantity;
-  });
+    cart.forEach(item => {
+      const row = document.createElement("p");
+      row.textContent =
+        `${item.name} × ${item.quantity} — ` +
+        money(item.price * item.quantity);
+
+      container.appendChild(row);
+    });
+  }
+
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   if (totalElement) totalElement.textContent = money(total);
   if (modalTotal) modalTotal.textContent = money(total);
-  if (countElement) countElement.textContent = quantityTotal;
 
-  if (itemsContainer) {
-    itemsContainer.innerHTML = "";
-
-    cart.forEach(item => {
-      const row = document.createElement("div");
-      row.className = "cart-item";
-
-      const label = document.createElement("span");
-      label.textContent =
-        `${item.name} × ${item.quantity} — ${money(item.price * item.quantity)}`;
-
-      const decrease = document.createElement("button");
-      decrease.textContent = "−";
-      decrease.onclick = () => {
-        item.quantity -= 1;
-        if (item.quantity <= 0) {
-          cart = cart.filter(p => p.id !== item.id);
-        }
-        renderCart();
-      };
-
-      const increase = document.createElement("button");
-      increase.textContent = "+";
-      increase.onclick = () => {
-        item.quantity += 1;
-        renderCart();
-      };
-
-      row.append(label, decrease, increase);
-      itemsContainer.appendChild(row);
-    });
-
-    if (cart.length === 0) {
-      itemsContainer.textContent = "Savatcha hozircha bo‘sh.";
-    }
+  if (countElement) {
+    countElement.textContent = cart.reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    );
   }
 }
 
+function sendOrder() {
+  if (!cart.length) {
+    alert("Savatchangiz bo‘sh. Avval mahsulot qo‘shing.");
+    return;
+  }
+
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  if (total < 30000) {
+    alert(
+      "Minimal buyurtma 30 000 so‘m.\n" +
+      "Yana " + money(30000 - total) + " lik mahsulot qo‘shing."
+    );
+    return;
+  }
+
+  if (!tg) {
+    alert("Telegram ichidagi Do‘kon tugmasi orqali oching.");
+    return;
+  }
+
+  const order = {
+    type: "bahor_market_order",
+    items: cart.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity
+    })),
+    total: total
+  };
+
+  tg.sendData(JSON.stringify(order));
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  if (tg) {
+    tg.ready();
+    tg.expand();
+  }
+
   renderCategories();
   renderProducts();
   renderCart();
 
-  const search = document.getElementById("search");
-  if (search) {
-    search.addEventListener("input", event => {
-      searchText = event.target.value.trim();
-      renderProducts();
-    });
-  }
+  document.getElementById("search")?.addEventListener(
+    "input",
+    renderProducts
+  );
 
-  const openCart = document.getElementById("open-cart");
-  const closeCart = document.getElementById("close-cart");
-  const modal = document.getElementById("cart-modal");
+  document.getElementById("open-cart")?.addEventListener("click", () => {
+    document.getElementById("cart-modal")?.classList.remove("hidden");
+  });
 
-  if (openCart && modal) {
-    openCart.onclick = () => modal.classList.remove("hidden");
-  }
+  document.getElementById("close-cart")?.addEventListener("click", () => {
+    document.getElementById("cart-modal")?.classList.add("hidden");
+  });
 
-  if (closeCart && modal) {
-    closeCart.onclick = () => modal.classList.add("hidden");
-  }
-
-  const checkout = document.getElementById("checkout");
-  if (checkout) {
-    checkout.onclick = () => {
-      if (cart.length === 0) {
-        alert("Avval savatchaga mahsulot qo‘shing.");
-        return;
-      }
-
-      alert("Savatcha tayyor. Buyurtmani Telegram botga yuborish funksiyasini keyingi bosqichda ulaymiz.");
-    };
-  }
+  document.getElementById("checkout")?.addEventListener(
+    "click",
+    sendOrder
+  );
 });
